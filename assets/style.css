@@ -295,6 +295,41 @@ body {
     position: relative;
     z-index: 2;
 }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.app-shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    position: relative;
+}
+
+.app-shell::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 280px; /* starts after sidebar */
+    right: 0;
+    bottom: 0;
+    background: url("millet-logo.jpeg") center center no-repeat;
+    background-size: 500px;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.sidebar {
+    position: relative;
+    z-index: 10;
+}
+
+.content {
+    position: relative;
+    z-index: 10;
+}
 
 
 .login-logo{
