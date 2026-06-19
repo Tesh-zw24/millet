@@ -1,14 +1,213 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Shop POS - Supabase</title><link rel="stylesheet" href="assets/style.css"/><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body>
-<div id="loginScreen" class="login-screen"><div class="login-card"><h1>Shop POS</h1><p>Login to continue</p><label>Email<input id="email" type="email" placeholder="cashier@yourshop.com"/></label><label>Password<input id="password" type="password" placeholder="Enter password"/></label><button onclick="login()">Login</button><p class="hint">Create the 3 users inside Supabase Authentication first, then add their profiles.</p><div id="loginMessage"></div></div></div>
-<div id="app" class="hidden"><header><div><h1>Shop POS</h1><p id="userInfo"></p></div><button class="logout" onclick="logout()">Logout</button></header><main>
-<section class="card"><h2>Dashboard</h2><div class="metrics"><div class="metric">Today's Sales<strong id="todaySales">$0.00</strong></div><div class="metric">Today's Net Profit<strong id="todayProfit">$0.00</strong></div><div class="metric">Products<strong id="productCount">0</strong></div><div class="metric">Most Sought Today<strong id="topProduct">No sales yet</strong></div></div></section>
-<section class="card"><h2>Low Stock Alerts</h2><div id="alerts"></div></section>
-<section class="grid"><div class="card"><h2>Record Sale</h2><label>Product<select id="saleProduct"></select></label><label>Quantity Sold<input id="saleQuantity" type="number" min="1"/></label><button onclick="recordSale()">Record Sale</button><div id="saleMessage"></div></div>
-<div class="card supervisor-only"><h2>Add / Receive Stock</h2><label>Product Name <input id="productName" placeholder="Rice 10kg"/></label><label>Cost Price ($)<input id="costPrice" type="number" min="0" step="0.01"/></label><label>Selling Price ($)<input id="sellingPrice" type="number" min="0" step="0.01"/></label><label>Quantity Received<input id="quantity" type="number" min="1"/></label><label>Low Stock Alert Level<input id="alertLevel" type="number" min="1" value="5"/></label><button onclick="receiveStock()">Add / Receive Stock</button><div id="stockMessage"></div></div></section>
-<section class="grid supervisor-only"><div class="card"><h2>Deduct Stock</h2><label>Product<select id="deductProduct"></select></label><label>Quantity to Deduct<input id="deductQuantity" type="number" min="1"/></label><label>Reason<input id="deductReason" placeholder="Damaged / expired / missing"/></label><button class="danger" onclick="deductStock()">Deduct Stock</button></div><div class="card"><h2>Stock Take</h2><label>Product<select id="stockTakeProduct"></select></label><label>Actual Counted Quantity<input id="stockTakeQuantity" type="number" min="0"/></label><button onclick="stockTake()">Submit Stock Take</button></div></section>
-<section class="card"><h2>Stock List</h2><table><thead><tr><th>Product</th><th>Cost</th><th>Selling</th><th>Stock</th><th>Alert At</th></tr></thead><tbody id="stockTable"></tbody></table></section>
-<section class="card supervisor-only"><h2>Reports</h2><button onclick="showReport('daily')">Daily</button><button onclick="showReport('weekly')">Weekly</button><button onclick="showReport('monthly')">Monthly</button><div id="report"></div></section>
-<section class="card"><h2>Recent Sales</h2><table><thead><tr><th>Date</th><th>Product</th><th>Qty</th><th>Revenue</th><th>Gross Profit</th></tr></thead><tbody id="salesTable"></tbody></table></section>
-<section class="card supervisor-only"><h2>Stock Movement History</h2><table><thead><tr><th>Date</th><th>Type</th><th>Product</th><th>Qty Change</th><th>Reason</th></tr></thead><tbody id="movementTable"></tbody></table></section>
-<section class="card supervisor-only"><h2>Settings</h2><label>Monthly Rent ($)<input id="monthlyRent" type="number" min="0" step="0.01"/></label><button onclick="saveSettings()">Save Rent</button></section>
-</main></div><script src="assets/config.js"></script><script src="assets/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop POS - Supabase</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+
+  <!-- Supabase Library -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <h1>Shop POS</h1>
+      <p>Login to continue</p>
+
+      <label>Email
+        <input id="email" type="email" placeholder="cashier@yourshop.com"/>
+      </label>
+
+      <label>Password
+        <input id="password" type="password" placeholder="Enter password"/>
+      </label>
+
+      <button onclick="login()">Login</button>
+
+      <p class="hint">Create the users inside Supabase Authentication first, then add their profiles.</p>
+      <div id="loginMessage"></div>
+    </div>
+  </div>
+
+  <div id="app" class="hidden">
+    <header>
+      <div>
+        <h1>Shop POS</h1>
+        <p id="userInfo"></p>
+      </div>
+      <button class="logout" onclick="logout()">Logout</button>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Dashboard</h2>
+        <div class="metrics">
+          <div class="metric">Today's Sales<strong id="todaySales">$0.00</strong></div>
+          <div class="metric">Today's Net Profit<strong id="todayProfit">$0.00</strong></div>
+          <div class="metric">Products<strong id="productCount">0</strong></div>
+          <div class="metric">Most Sought Today<strong id="topProduct">No sales yet</strong></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Low Stock Alerts</h2>
+        <div id="alerts"></div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <h2>Record Sale</h2>
+
+          <label>Product
+            <select id="saleProduct"></select>
+          </label>
+
+          <label>Quantity Sold
+            <input id="saleQuantity" type="number" min="1"/>
+          </label>
+
+          <button onclick="recordSale()">Record Sale</button>
+          <div id="saleMessage"></div>
+        </div>
+
+        <div class="card supervisor-only">
+          <h2>Add / Receive Stock</h2>
+
+          <label>Product Name
+            <input id="productName" placeholder="Rice 10kg"/>
+          </label>
+
+          <label>Cost Price ($)
+            <input id="costPrice" type="number" min="0" step="0.01"/>
+          </label>
+
+          <label>Selling Price ($)
+            <input id="sellingPrice" type="number" min="0" step="0.01"/>
+          </label>
+
+          <label>Quantity Received
+            <input id="quantity" type="number" min="1"/>
+          </label>
+
+          <label>Low Stock Alert Level
+            <input id="alertLevel" type="number" min="1" value="5"/>
+          </label>
+
+          <button onclick="receiveStock()">Add / Receive Stock</button>
+          <div id="stockMessage"></div>
+        </div>
+      </section>
+
+      <section class="grid supervisor-only">
+        <div class="card">
+          <h2>Deduct Stock</h2>
+
+          <label>Product
+            <select id="deductProduct"></select>
+          </label>
+
+          <label>Quantity to Deduct
+            <input id="deductQuantity" type="number" min="1"/>
+          </label>
+
+          <label>Reason
+            <input id="deductReason" placeholder="Damaged / expired / missing"/>
+          </label>
+
+          <button class="danger" onclick="deductStock()">Deduct Stock</button>
+        </div>
+
+        <div class="card">
+          <h2>Stock Take</h2>
+
+          <label>Product
+            <select id="stockTakeProduct"></select>
+          </label>
+
+          <label>Actual Counted Quantity
+            <input id="stockTakeQuantity" type="number" min="0"/>
+          </label>
+
+          <button onclick="stockTake()">Submit Stock Take</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Stock List</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Cost</th>
+              <th>Selling</th>
+              <th>Stock</th>
+              <th>Alert At</th>
+            </tr>
+          </thead>
+          <tbody id="stockTable"></tbody>
+        </table>
+      </section>
+
+      <section class="card supervisor-only">
+        <h2>Reports</h2>
+
+        <button onclick="showReport('daily')">Daily</button>
+        <button onclick="showReport('weekly')">Weekly</button>
+        <button onclick="showReport('monthly')">Monthly</button>
+
+        <div id="report"></div>
+      </section>
+
+      <section class="card">
+        <h2>Recent Sales</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Revenue</th>
+              <th>Gross Profit</th>
+            </tr>
+          </thead>
+          <tbody id="salesTable"></tbody>
+        </table>
+      </section>
+
+      <section class="card supervisor-only">
+        <h2>Stock Movement History</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Product</th>
+              <th>Qty Change</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody id="movementTable"></tbody>
+        </table>
+      </section>
+
+      <section class="card supervisor-only">
+        <h2>Settings</h2>
+
+        <label>Monthly Rent ($)
+          <input id="monthlyRent" type="number" min="0" step="0.01"/>
+        </label>
+
+        <button onclick="saveSettings()">Save Rent</button>
+      </section>
+    </main>
+  </div>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
