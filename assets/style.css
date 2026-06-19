@@ -262,3 +262,11 @@ th {
     overflow-x: auto;
   }
 }
+
+
+.login-logo{
+ width:150px;display:block;margin:0 auto 15px auto;
+}
+.sidebar-logo{
+ width:130px;display:block;margin:0 auto 15px auto;background:#fff;padding:8px;border-radius:10px;
+}
