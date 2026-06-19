@@ -24,8 +24,8 @@ body {
   position: fixed;
   inset: 0;
   background: url("millet-logo.jpeg") center center no-repeat;
-  background-size: 560px;
-  opacity: 0.22;
+  background-size: 400px;
+  opacity: 0.20;
   pointer-events: none;
   z-index: 0;
 }
